@@ -1,0 +1,35 @@
+# Módulo de Gestión de Personas
+
+Este módulo permite la administración completa de personas en el sistema del restaurante. Incluye funcionalidades para crear, editar, visualizar y desactivar registros de personas.
+
+## Funcionalidades principales
+
+1. **Listado de personas**: Muestra todas las personas activas en el sistema.
+2. **Creación de personas**: Permite registrar nuevas personas con validación de datos.
+3. **Edición de personas**: Actualiza la información de personas existentes.
+4. **Visualización detallada**: Muestra información completa de una persona, incluyendo datos de ubicación.
+5. **Desactivación de personas**: Permite cambiar el estado de una persona a inactivo.
+
+## Estructura de archivos
+
+- `index.php`: Listado principal de personas
+- `create.php`: Formulario para crear nuevas personas
+- `edit.php`: Formulario para editar personas existentes
+- `view.php`: Vista detallada de la información de una persona
+- `delete.php`: Procesador para desactivar personas
+- `functions.php`: Funciones específicas del módulo que interactúan con la base de datos
+
+
+## Integración con otros módulos
+
+- **Módulo de Clientes**: Las personas pueden ser registradas como clientes.
+- **Módulo de Ubicaciones**: Integra información de direcciones, provincias, cantones y distritos.
+
+## Procedimientos almacenados utilizados
+
+Este módulo utiliza principalmente los siguientes paquetes y procedimientos de la base de datos:
+
+- `FIDE_PERSONAS_PKG`: Gestión CRUD de personas
+- `FIDE_TIPO_PERSONA_PKG`: Obtención de tipos de persona
+- `FIDE_DIRECCION_PKG`: Obtención de direcciones
+- `FIDE_ESTADO_PKG`: Gestión de estados de registros

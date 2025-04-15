@@ -28,7 +28,6 @@ include_once __DIR__ . '/../../includes/navigation.php';
                 <th>Nombre</th>
                 <th>Apellido 1</th>
                 <th>Apellido 2</th>
-                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -44,9 +43,11 @@ include_once __DIR__ . '/../../includes/navigation.php';
                         <td><?= htmlspecialchars($persona['PERSONAS_APELLIDO1']) ?></td>
                         <td><?= htmlspecialchars($persona['PERSONAS_APELLIDO2'] ?? '') ?></td>
                         <td>
+                            
+                        <td>
                             <a href="view.php?cedula=<?= urlencode($persona['PERSONAS_CEDULA_PERSONA_PK']) ?>" class="btn btn-sm btn-info">Ver</a>
                             <a href="edit.php?cedula=<?= urlencode($persona['PERSONAS_CEDULA_PERSONA_PK']) ?>" class="btn btn-sm btn-warning">Editar</a>
-                            <a href="javascript:void(0);" onclick="confirmarEliminar('<?= $persona['PERSONAS_CEDULA_PERSONA_PK'] ?>')" class="btn btn-sm btn-danger">Eliminar</a>
+                        </td>
                         </td>
                     </tr>
                 <?php endforeach; ?>

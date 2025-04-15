@@ -139,6 +139,164 @@ function executeOracleCursorProcedure($conn, $packageName, $procedureName, $para
     
     return $data;
 }
+
+/**
+ * Ejecuta específicamente el procedimiento PERSONAS_SELECCIONAR_POR_ID_SP
+ * en el modulo personas/ functions.... un tema con el cursor, toca hacerlo asi para que no reviente
+ * @param resource $conn Conexión Oracle
+ * @param string $cedula Cédula de la persona
+ * @return array Datos de la persona
+ */
+function ejecutarPersonasSeleccionarPorId($conn, $cedula) {
+    $sql = "BEGIN FIDE_PERSONAS_PKG.PERSONAS_SELECCIONAR_POR_ID_SP(:cedula, :cursor); END;";
+    
+    $stmt = oci_parse($conn, $sql);
+    if (!$stmt) {
+        $e = oci_error($conn);
+        trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+        return [];
+    }
+    
+    // Bind the cedula parameter
+    oci_bind_by_name($stmt, ":cedula", $cedula);
+    
+    // Bind the cursor
+    $cursor = oci_new_cursor($conn);
+    oci_bind_by_name($stmt, ":cursor", $cursor, -1, OCI_B_CURSOR);
+    
+    $result = oci_execute($stmt);
+    if (!$result) {
+        $e = oci_error($stmt);
+        trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+        return [];
+    }
+    
+    // Execute the cursor
+    oci_execute($cursor);
+    
+    // Fetch all rows from the cursor
+    $data = [];
+    while (($row = oci_fetch_assoc($cursor)) !== false) {
+        $data[] = $row;
+    }
+    
+    // Free resources
+    oci_free_statement($cursor);
+    oci_free_statement($stmt);
+    
+    return $data;
+}
+
+/**
+ * Ejecuta el procedimiento TIPO_PERSONA_SELECCIONAR_POR_ID_SP del
+ * modulo de personas
+ * @param resource $conn Conexión Oracle
+ * @param int $tipoPersonaId ID del tipo de persona
+ * @return array Datos del tipo de persona
+ */
+function ejecutarTipoPersonaSeleccionarPorId($conn, $tipoPersonaId) {
+    $sql = "BEGIN FIDE_TIPO_PERSONA_PKG.TIPO_PERSONA_SELECCIONAR_POR_ID_SP(:tipoid, :cursor); END;";
+    
+    $stmt = oci_parse($conn, $sql);
+    if (!$stmt) {
+        $e = oci_error($conn);
+        trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+        return [];
+    }
+    
+    // Bind the ID parameter
+    oci_bind_by_name($stmt, ":tipoid", $tipoPersonaId);
+    
+    // Bind the cursor
+    $cursor = oci_new_cursor($conn);
+    oci_bind_by_name($stmt, ":cursor", $cursor, -1, OCI_B_CURSOR);
+    
+    $result = oci_execute($stmt);
+    if (!$result) {
+        $e = oci_error($stmt);
+        trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+        return [];
+    }
+    
+    // Execute the cursor
+    oci_execute($cursor);
+    
+    // Fetch all rows from the cursor
+    $data = [];
+    while (($row = oci_fetch_assoc($cursor)) !== false) {
+        $data[] = $row;
+    }
+    
+    // Free resources
+    oci_free_statement($cursor);
+    oci_free_statement($stmt);
+    
+    return $data;
+}
+
+
+
+/**
+ * Ejecuta el procedimiento CLIENTES_SELECCIONAR_POR_ID_SP
+ * @param resource $conn Conexión Oracle
+ * @param string $cedula Cédula de la persona/cliente
+ * @return array Datos del cliente
+ */
+function ejecutarClientesSeleccionarPorId($conn, $cedula) {
+    $sql = "BEGIN FIDE_CLIENTES_PKG.CLIENTES_SELECCIONAR_POR_ID_SP(:cedula, :cursor); END;";
+    
+    $stmt = oci_parse($conn, $sql);
+    if (!$stmt) {
+        $e = oci_error($conn);
+        trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+        return [];
+    }
+    
+    // Bind the cedula parameter
+    oci_bind_by_name($stmt, ":cedula", $cedula);
+    
+    // Bind the cursor
+    $cursor = oci_new_cursor($conn);
+    oci_bind_by_name($stmt, ":cursor", $cursor, -1, OCI_B_CURSOR);
+    
+    $result = oci_execute($stmt);
+    if (!$result) {
+        $e = oci_error($stmt);
+        trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+        return [];
+    }
+    
+    // Execute the cursor
+    oci_execute($cursor);
+    
+    // Fetch all rows from the cursor
+    $data = [];
+    while (($row = oci_fetch_assoc($cursor)) !== false) {
+        $data[] = $row;
+    }
+    
+    // Free resources
+    oci_free_statement($cursor);
+    oci_free_statement($stmt);
+    
+    return $data;
+}
+
+/**
+ * Obtiene un cliente por su cédula
+ * @param string $cedula Cédula del cliente
+ * @return array|null Datos del cliente o null si no existe
+ */
+function obtenerClientePorCedula($cedula) {
+    $conn = getOracleConnection();
+    if (!$conn) return null;
+    
+    $cliente = ejecutarClientesSeleccionarPorId($conn, $cedula);
+    
+    oci_close($conn);
+    return !empty($cliente) ? $cliente[0] : null;
+}
+
 ?>
 
 

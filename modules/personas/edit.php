@@ -30,41 +30,56 @@ if (!$persona) {
 
 // Si se envió el formulario
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Validamos y sanitizamos los datos
-    $nombre = trim($_POST['nombre'] ?? '');
-    $apellido1 = trim($_POST['apellido1'] ?? '');
-    $apellido2 = trim($_POST['apellido2'] ?? '');
-    $direccion_id = !empty($_POST['direccion_id']) ? (int)$_POST['direccion_id'] : null;
-    $tipo_id = !empty($_POST['tipo_id']) ? (int)$_POST['tipo_id'] : null;
-    $estado_id = !empty($_POST['estado_id']) ? (int)$_POST['estado_id'] : 1; // Por defecto activo
-    
-    // Validación básica
-    if (empty($nombre) || empty($apellido1) || $tipo_id === null) {
-        $error = true;
-        $mensaje = 'Todos los campos marcados con * son obligatorios.';
-    } else {
-        // Preparamos los datos para actualizar
-        $datos = [
-            'cedula' => $cedula, // No se puede cambiar la cédula, es la PK
-            'nombre' => $nombre,
-            'apellido1' => $apellido1,
-            'apellido2' => $apellido2,
-            'direccion_id' => $direccion_id,
-            'tipo_id' => $tipo_id,
-            'estado_id' => $estado_id
-        ];
-        
-        // Intentamos actualizar la persona
-        if (actualizarPersona($datos)) {
+    // Verificamos si es una acción de desactivar
+    if (isset($_POST['accion']) && $_POST['accion'] === 'desactivar') {
+        // Intentamos desactivar la persona
+        if (desactivarPersona($cedula)) {
             // Redireccionamos a la lista con mensaje de éxito
-            header('Location: index.php?mensaje=Persona actualizada correctamente');
+            header('Location: index.php?mensaje=Persona desactivada correctamente');
             exit;
         } else {
             $error = true;
-            $mensaje = 'Error al actualizar la persona. Verifica los datos e intenta nuevamente.';
+            $mensaje = 'Error al desactivar la persona. Puede que esté siendo utilizada en otros registros.';
+        }
+    } else {
+        // Es una actualización normal
+        // Validamos y sanitizamos los datos
+        $nombre = trim($_POST['nombre'] ?? '');
+        $apellido1 = trim($_POST['apellido1'] ?? '');
+        $apellido2 = trim($_POST['apellido2'] ?? '');
+        $direccion_id = !empty($_POST['direccion_id']) ? (int)$_POST['direccion_id'] : null;
+        $tipo_id = !empty($_POST['tipo_id']) ? (int)$_POST['tipo_id'] : null;
+        $estado_id = !empty($_POST['estado_id']) ? (int)$_POST['estado_id'] : 1; // Por defecto activo
+        
+        // Validación básica
+        if (empty($nombre) || empty($apellido1) || $tipo_id === null) {
+            $error = true;
+            $mensaje = 'Todos los campos marcados con * son obligatorios.';
+        } else {
+            // Preparamos los datos para actualizar
+            $datos = [
+                'cedula' => $cedula,
+                'nombre' => $nombre,
+                'apellido1' => $apellido1,
+                'apellido2' => $apellido2,
+                'direccion_id' => $direccion_id,
+                'tipo_id' => $tipo_id,
+                'estado_id' => $estado_id
+            ];
+            
+            // Intentamos actualizar la persona
+            if (actualizarPersona($datos)) {
+                // Redireccionamos a la lista con mensaje de éxito
+                header('Location: index.php?mensaje=Persona actualizada correctamente');
+                exit;
+            } else {
+                $error = true;
+                $mensaje = 'Error al actualizar la persona. Verifica los datos e intenta nuevamente.';
+            }
         }
     }
 }
+
 
 // Obtener tipos de persona para el selector
 $conn = getOracleConnection();
@@ -151,16 +166,19 @@ include_once __DIR__ . '/../../includes/navigation.php';
         </div>
         
         <div class="mb-3">
-            <label for="estado_id" class="form-label">Estado *</label>
-            <select class="form-select" id="estado_id" name="estado_id" required>
-                <?php foreach ($estados as $estado): ?>
-                    <?php $selected = $persona['ESTADO_ID_FK'] == $estado['ESTADO_ID_PK'] ? 'selected' : ''; ?>
-                    <option value="<?= $estado['ESTADO_ID_PK'] ?>" <?= $selected ?>>
-                        <?= htmlspecialchars($estado['ESTADO_NOMBRE']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
+    <label for="estado_id" class="form-label">Estado *</label>
+    <select class="form-select" id="estado_id" name="estado_id" required>
+        <?php foreach ($estados as $estado): ?>
+            <?php $selected = $persona['ESTADO_ID_FK'] == $estado['ESTADO_ID_PK'] ? 'selected' : ''; ?>
+            <option value="<?= $estado['ESTADO_ID_PK'] ?>" <?= $selected ?>>
+                <?= htmlspecialchars($estado['ESTADO_NOMBRE']) ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+    <div class="form-text">
+        Nota: Seleccionar "Inactivo" desactivará esta persona en el sistema.
+    </div>
+</div>
         
         <div class="d-flex justify-content-between">
             <a href="index.php" class="btn btn-secondary">Cancelar</a>
@@ -168,6 +186,22 @@ include_once __DIR__ . '/../../includes/navigation.php';
         </div>
     </form>
 </div>
+<script>
+
+// Antes de enviar el formulario, confirmamos si el usuario realmente quiere desactivar la persona
+document.querySelector('form').addEventListener('submit', function(event) {
+    const estadoSelect = document.getElementById('estado_id');
+    const estadoId = parseInt(estadoSelect.value);
+    
+    // Si el estado seleccionado es "Inactivo" (ID 2), pedimos confirmación
+    if (estadoId === 2) {
+        if (!confirm('¿Está seguro que desea desactivar esta persona? Esta acción no se puede deshacer.')) {
+            event.preventDefault(); // Detener el envío del formulario si el usuario cancela
+        }
+    }
+});
+</script>
+
 
 <?php
 include_once __DIR__ . '/../../includes/footer.php';

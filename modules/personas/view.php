@@ -14,7 +14,7 @@ if (empty($_GET['cedula'])) {
 
 $cedula = trim($_GET['cedula']);
 
-// Obtener datos de la persona
+// Obtener datos de la persona - ¡ESTE PASO ES ESENCIAL Y FALTABA!
 $persona = obtenerPersonaPorCedula($cedula);
 
 // Si no se encontró la persona, redirigimos
@@ -29,7 +29,8 @@ $conn = getOracleConnection();
 // Obtener el tipo de persona
 $tipoPersona = null;
 if (!empty($persona['PERSONAS_ID_TIPO_FK'])) {
-    $tipoPersonaData = executeOracleCursorProcedure($conn, 'FIDE_TIPO_PERSONA_PKG', 'TIPO_PERSONA_SELECCIONAR_POR_ID_SP', [$persona['PERSONAS_ID_TIPO_FK']]);
+    // Usar la función específica en lugar de executeOracleCursorProcedure
+    $tipoPersonaData = ejecutarTipoPersonaSeleccionarPorId($conn, $persona['PERSONAS_ID_TIPO_FK']);
     if (!empty($tipoPersonaData)) {
         $tipoPersona = $tipoPersonaData[0];
     }
@@ -38,30 +39,28 @@ if (!empty($persona['PERSONAS_ID_TIPO_FK'])) {
 // Obtener la dirección
 $direccion = null;
 if (!empty($persona['PERSONAS_ID_DIRECCION_FK'])) {
-    $direccionData = executeOracleCursorProcedure($conn, 'FIDE_DIRECCION_PKG', 'DIRECCION_SELECCIONAR_POR_ID_SP', [$persona['PERSONAS_ID_DIRECCION_FK']]);
-    if (!empty($direccionData)) {
-        $direccion = $direccionData[0];
-        
-        // Obtener provincia, cantón y distrito si es necesario
-        if (!empty($direccion['ID_PROVINCIA_FK'])) {
-            $provinciaData = executeOracleCursorProcedure($conn, 'FIDE_PROVINCIA_PKG', 'PROVINCIA_SELECCIONAR_POR_ID_SP', [$direccion['ID_PROVINCIA_FK']]);
-            if (!empty($provinciaData)) {
-                $direccion['PROVINCIA'] = $provinciaData[0];
-            }
+    // Usar obtenerDireccionPorId si está disponible, o la llamada directa
+    $direccion = obtenerDireccionPorId($persona['PERSONAS_ID_DIRECCION_FK']);
+    
+    // Obtener provincia, cantón y distrito si es necesario
+    if ($direccion && !empty($direccion['ID_PROVINCIA_FK'])) {
+        $provinciaData = executeOracleCursorProcedure($conn, 'FIDE_PROVINCIA_PKG', 'PROVINCIA_SELECCIONAR_POR_ID_SP', [$direccion['ID_PROVINCIA_FK']]);
+        if (!empty($provinciaData)) {
+            $direccion['PROVINCIA'] = $provinciaData[0];
         }
-        
-        if (!empty($direccion['ID_CANTON_FK'])) {
-            $cantonData = executeOracleCursorProcedure($conn, 'FIDE_CANTON_PKG', 'CANTON_SELECCIONAR_POR_ID_SP', [$direccion['ID_CANTON_FK']]);
-            if (!empty($cantonData)) {
-                $direccion['CANTON'] = $cantonData[0];
-            }
+    }
+    
+    if ($direccion && !empty($direccion['ID_CANTON_FK'])) {
+        $cantonData = executeOracleCursorProcedure($conn, 'FIDE_CANTON_PKG', 'CANTON_SELECCIONAR_POR_ID_SP', [$direccion['ID_CANTON_FK']]);
+        if (!empty($cantonData)) {
+            $direccion['CANTON'] = $cantonData[0];
         }
-        
-        if (!empty($direccion['ID_DISTRITO_FK'])) {
-            $distritoData = executeOracleCursorProcedure($conn, 'FIDE_DISTRITO_PKG', 'DISTRITO_SELECCIONAR_POR_ID_SP', [$direccion['ID_DISTRITO_FK']]);
-            if (!empty($distritoData)) {
-                $direccion['DISTRITO'] = $distritoData[0];
-            }
+    }
+    
+    if ($direccion && !empty($direccion['ID_DISTRITO_FK'])) {
+        $distritoData = executeOracleCursorProcedure($conn, 'FIDE_DISTRITO_PKG', 'DISTRITO_SELECCIONAR_POR_ID_SP', [$direccion['ID_DISTRITO_FK']]);
+        if (!empty($distritoData)) {
+            $direccion['DISTRITO'] = $distritoData[0];
         }
     }
 }
@@ -77,13 +76,14 @@ if (!empty($persona['ESTADO_ID_FK'])) {
 
 // Verificar si es cliente
 $esCliente = false;
-$clienteData = executeOracleCursorProcedure($conn, 'FIDE_CLIENTES_PKG', 'CLIENTES_SELECCIONAR_POR_ID_SP', [$cedula]);
-if (!empty($clienteData)) {
+$cliente = obtenerClientePorCedula($cedula);
+if ($cliente) {
     $esCliente = true;
-    $cliente = $clienteData[0];
 }
 
-oci_close($conn);
+if ($conn) {
+    oci_close($conn);
+}
 
 // Incluir el encabezado
 include_once __DIR__ . '/../../includes/header.php';
@@ -99,6 +99,7 @@ include_once __DIR__ . '/../../includes/navigation.php';
         </div>
     </div>
     
+    <?php if ($persona): // Verificar que $persona existe ?>
     <div class="card mb-4">
         <div class="card-header bg-primary text-white">
             <h5 class="card-title mb-0">Información Personal</h5>
@@ -166,11 +167,18 @@ include_once __DIR__ . '/../../includes/navigation.php';
         <div class="card-body">
             <div class="alert alert-warning">
                 Esta persona no está registrada como cliente.
-                <?php if ($persona['ESTADO_ID_FK'] == 1): // Si la persona está activa ?>
+                <?php if (isset($persona['ESTADO_ID_FK']) && $persona['ESTADO_ID_FK'] == 1): // Si la persona está activa ?>
                 <a href="../clientes/create.php?cedula=<?= urlencode($cedula) ?>" class="btn btn-sm btn-primary ms-3">Registrar como Cliente</a>
                 <?php endif; ?>
             </div>
         </div>
+    </div>
+    <?php endif; ?>
+    
+    <?php else: // Si $persona no existe ?>
+    <div class="alert alert-danger">
+        <p>Error: No se pudo obtener la información de la persona.</p>
+        <a href="index.php" class="btn btn-primary mt-2">Volver a la lista</a>
     </div>
     <?php endif; ?>
 </div>

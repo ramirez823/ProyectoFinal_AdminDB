@@ -19,7 +19,7 @@ $currentYear = date('Y');
                         <p class="mb-0">&copy; <?= $currentYear ?> Sistema de Gestión de Restaurante</p>
                     </div>
                     <div class="col-md-6 text-end">
-                        <p class="mb-0">Desarrollado con <i class="fas fa-heart text-danger"></i> por Tu Empresa</p>
+                        <p class="mb-0">Desarrollado con <i class="fas fa-heart text-danger"></i></p> 
                     </div>
                 </div>
             </div>

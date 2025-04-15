@@ -4,8 +4,8 @@
  */
 
 // Datos de conexión
-define('DB_USERNAME', 'PROYECTO_FINAL'); // Tu usuario
-define('DB_PASSWORD', 'PROYECTOFINAL'); // Tu contraseña
+define('DB_USERNAME', 'PROYECTO_FINAL'); 
+define('DB_PASSWORD', 'PROYECTOFINAL'); 
 define('DB_CONNECTION_STRING', '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=XEPDB1)))'); // Conexión correcta
 
 /**
@@ -13,12 +13,14 @@ define('DB_CONNECTION_STRING', '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localh
  * @return resource Conexión Oracle o false en caso de error
  */
 function getOracleConnection() {
-    $conn = oci_connect(DB_USERNAME, DB_PASSWORD, DB_CONNECTION_STRING, 'AL32UTF8'); // Cambia 'AL32UTF8' si tu base de datos tiene otro juego de caracteres
+    $conn = oci_connect(DB_USERNAME, DB_PASSWORD, DB_CONNECTION_STRING, 'AL32UTF8'); 
 
     if (!$conn) {
         $e = oci_error();
         trigger_error("❌ ¡Error de conexión!: " . htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
         return false;
+    }else {
+        # echo "hola";
     }
     return $conn;
 }
@@ -27,7 +29,7 @@ function getOracleConnection() {
 $conn = getOracleConnection();
 
 if ($conn) {
-    echo "✅ ¡Conexión establecida correctamente! <br> hola mundo xdddd";
+
     oci_close($conn); // Cerramos la conexión
 } else {
     echo "❌ No se pudo conectar a la base de datos.";
@@ -76,11 +78,11 @@ function executeOracleProcedure($conn, $procedureName, $params = []) {
 }
 
 /**
- * Ejecuta una consulta que retorna un cursor
+ * Ejecuta una consulta que retorna un cursor como primer parámetro (por la manera en que diseñaron los paquetes)
  * @param resource $conn Conexión Oracle
  * @param string $packageName Nombre del paquete
  * @param string $procedureName Nombre del procedimiento
- * @param array $params Parámetros del procedimiento
+ * @param array $params Parámetros del procedimiento (sin incluir el cursor)
  * @return array Resultados de la consulta
  */
 function executeOracleCursorProcedure($conn, $packageName, $procedureName, $params = []) {
@@ -88,11 +90,13 @@ function executeOracleCursorProcedure($conn, $packageName, $procedureName, $para
     
     $sql = "BEGIN $fullProcedureName(";
     
-    $paramPlaceholders = [];
+    // El cursor es el primer parámetro
+    $paramPlaceholders = [":cursor"];
+    
+    // Luego vienen los demás parámetros
     for ($i = 0; $i < count($params); $i++) {
         $paramPlaceholders[] = ":param$i";
     }
-    $paramPlaceholders[] = ":cursor";  // Add cursor parameter
     
     $sql .= implode(', ', $paramPlaceholders);
     $sql .= "); END;";
@@ -104,14 +108,14 @@ function executeOracleCursorProcedure($conn, $packageName, $procedureName, $para
         return [];
     }
     
-    // Bind the parameters
+    // Bind the cursor first
+    $cursor = oci_new_cursor($conn);
+    oci_bind_by_name($stmt, ":cursor", $cursor, -1, OCI_B_CURSOR);
+    
+    // Then bind the other parameters
     for ($i = 0; $i < count($params); $i++) {
         oci_bind_by_name($stmt, ":param$i", $params[$i]);
     }
-    
-    // Bind the cursor
-    $cursor = oci_new_cursor($conn);
-    oci_bind_by_name($stmt, ":cursor", $cursor, -1, OCI_B_CURSOR);
     
     $result = oci_execute($stmt);
     if (!$result) {

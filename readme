@@ -1,5 +1,8 @@
+# ==========================================
+#
 # Módulo de Gestión de Personas
-
+#
+# ==========================================
 Este módulo permite la administración completa de personas en el sistema del restaurante. Incluye funcionalidades para crear, editar, visualizar y desactivar registros de personas.
 
 ## Funcionalidades principales
@@ -33,3 +36,146 @@ Este módulo utiliza principalmente los siguientes paquetes y procedimientos de 
 - `FIDE_TIPO_PERSONA_PKG`: Obtención de tipos de persona
 - `FIDE_DIRECCION_PKG`: Obtención de direcciones
 - `FIDE_ESTADO_PKG`: Gestión de estados de registros
+
+# ==========================================
+#
+# Módulo de Gestión de Pedidos
+#
+# ==========================================
+Este módulo permite la administración completa del ciclo de vida de pedidos en el sistema del restaurante. Incluye funcionalidades para crear, seguir, actualizar y gestionar los pedidos de los clientes.
+Funcionalidades principales
+
+1. **Listado de pedidos**: Muestra todos los pedidos activos en el sistema con filtros por estado.
+2. **Creación de pedidos**: Permite registrar nuevos pedidos con múltiples ítems del menú.
+3. **Seguimiento de pedidos**: Facilita el rastreo de los cambios de estado de un pedido a lo largo del tiempo.
+4. **Asignación de estados**: Permite actualizar el estado del pedido (pendiente, en preparación, listo, entregado, etc.).
+5. **Gestión de detalles: Permite agregar, modificar o eliminar ítems de un pedido existente.
+5. **Anulación de pedidos: Proporciona la funcionalidad para anular pedidos cuando sea necesario.
+
+# Estructura de archivos
+
+index.php: Listado principal de pedidos con filtros por estado
+nuevo_pedido.php: Formulario para crear nuevos pedidos
+ver_pedido.php: Vista detallada de un pedido específico con su historial
+actualizar_estado.php: Procesador para cambiar el estado de un pedido
+agregar_detalle.php: Formulario para agregar ítems a un pedido existente
+anular_pedido.php: Procesador para anular pedidos
+functions.php: Funciones específicas del módulo que interactúan con la base de datos
+
+# Integración con otros módulos
+
+Módulo de Menú: Integra los ítems disponibles para ser agregados a un pedido.
+Módulo de Personas: Vincula los pedidos con clientes registrados.
+Módulo de Facturación: Permite asociar facturas a los pedidos completados.
+
+# Procedimientos almacenados utilizados
+Este módulo utiliza principalmente los siguientes paquetes y procedimientos de la base de datos:
+
+- `FIDE_PEDIDO_PKG`: Gestión CRUD de pedidos
+- `FIDE_DETALLE_PEDIDO_PKG`: Gestión de los ítems incluidos en un pedido
+- `FIDE_SEGUIMIENTO_PEDIDO_PKG`: Registro del historial de estados de un pedido
+- `FIDE_ESTADO_PEDIDO_PKG`: Obtención de los posibles estados de un pedido
+- `FIDE_TIPO_ENTREGA_PKG`: Gestión de los tipos de entrega disponibles
+
+# Este módulo está diseñado para funcionar exclusivamente con los procedimientos almacenados en la base de datos Oracle, minimizando la lógica de negocio en el lado del cliente PHP y garantizando la integridad de los datos en todo momento.
+
+# ==========================================
+#
+# Módulo de Gestión de Inventario
+#
+# ==========================================
+
+
+# Este módulo permite la administración completa del inventario del restaurante, incluyendo artículos, existencias, movimientos y vencimientos de productos. Facilita el control de stock y la trazabilidad de todos los recursos.
+
+# Funcionalidades principales
+
+1. **Gestión de artículos**: Permite crear, editar y desactivar artículos del inventario.
+2. **Control de existencias**: Monitoriza las cantidades disponibles de cada artículo con alertas de niveles críticos.
+3. **Movimientos de inventario**: Registra entradas, salidas y ajustes con su respectiva justificación.
+4. **Control de vencimientos**: Gestiona las fechas de vencimiento de productos perecederos.
+5. **Ubicación de productos**: Permite asignar estantes específicos a los artículos.
+6. **Ajustes de inventario**: Facilita la corrección de discrepancias mediante ajustes directos.
+
+# Estructura de archivos
+
+index.php: Dashboard principal con resumen de inventario y alertas
+articulos.php: Listado y gestión de artículos
+nuevo_articulo.php: Formulario para crear nuevos artículos
+editar_articulo.php: Formulario para modificar artículos existentes
+ajustar_inventario.php: Interfaz para registrar movimientos y ajustes
+ver_movimientos.php: Historial de movimientos de un artículo específico
+vencimientos.php: Control y gestión de fechas de vencimiento
+informes.php: Reportes y estadísticas de inventario
+functions.php: Funciones específicas del módulo que interactúan con la base de datos
+
+# Integración con otros módulos
+
+Módulo de Menú: Los artículos del inventario son utilizados en la preparación de ítems del menú.
+Módulo de Proveedores: Vincula los artículos con sus respectivos proveedores.
+Módulo de Compras: Alimenta el inventario con nuevas adquisiciones.
+
+# Procedimientos almacenados utilizados
+Este módulo utiliza principalmente los siguientes paquetes y procedimientos de la base de datos:
+
+- `FIDE_ARTICULO_PKG`: Gestión CRUD de artículos
+- `FIDE_TIPO_ARTICULO_PKG`: Gestión de categorías de artículos
+- `FIDE_INVENTARIO_PKG`: Control de existencias y ajustes
+- `FIDE_MOVIMIENTOS_INVENTARIO_PKG`: Registro de entradas y salidas
+- `FIDE_VENCIMIENTO_PKG`: Control de fechas de caducidad
+- `FIDE_ESTANTE_PKG`: Gestión de ubicaciones físicas
+- `FIDE_PROVEEDOR_PKG`: Integración con información de proveedores
+
+# Este módulo está implementado para funcionar enteramente con los procedimientos almacenados en la base de datos Oracle, manteniendo la lógica de negocio del lado del servidor y utilizando PHP principalmente para la presentación y validación de datos. Esta arquitectura garantiza la integridad referencial y la consistencia en las operaciones de inventario.
+
+
+
+# ==========================================
+#
+# Módulo de Gestión de Menú
+#
+# ==========================================
+
+
+# Este módulo permite la administración completa de los ítems del menú del restaurante, incluyendo sus categorías, detalles e ingredientes. Facilita la organización y visualización de la oferta gastronómica disponible para los clientes.
+
+# Funcionalidades principales
+
+1. **Gestión de ítems de menú**: Permite crear, editar, visualizar y desactivar ítems del menú.
+2. **Categorización**: Organiza los ítems en categorías personalizables para una mejor clasificación.
+3. **Gestión de ingredientes**: Asocia ingredientes (artículos de inventario) a cada ítem del menú.
+4. **Control de disponibilidad**: Permite marcar ítems como disponibles o no disponibles.
+5. **Cálculo de costos y precios**: Facilita el cálculo de costos basados en ingredientes y sugerencias de precio.
+6. **Filtrado por categorías**: Permite buscar y filtrar ítems según su categoría.
+
+# Estructura de archivos
+
+- `index.php`: Listado principal de ítems del menú con opciones de filtrado
+- `create.php`: Formulario para crear nuevos ítems de menú
+- `edit.php`: Formulario para modificar ítems existentes
+- `view.php`: Vista detallada de un ítem con sus ingredientes
+- `delete.php`: Proceso para desactivar ítems
+- `categorias.php`: Gestión de categorías del menú
+- `categoria_create.php`: Formulario para crear nuevas categorías
+- `categoria_edit.php`: Formulario para editar categorías existentes
+- `categoria_delete.php`: Proceso para desactivar categorías
+- `detalle_manage.php`: Interfaz para gestionar los ingredientes de un ítem
+- `functions.php`: Funciones específicas del módulo que interactúan con la base de datos
+
+# Integración con otros módulos
+
+Módulo de Inventario: Los ingredientes de los ítems del menú provienen del inventario.
+Módulo de Pedidos: Los ítems del menú son seleccionados para crear pedidos.
+Módulo de Facturación: Los ítems seleccionados se incluyen en las facturas.
+Procedimientos almacenados utilizados
+
+# Este módulo utiliza principalmente los siguientes paquetes y procedimientos de la base de datos:
+
+FIDE_MENU_PKG: Gestión CRUD de ítems del menú
+FIDE_CATEGORIA_MENU_PKG: Gestión de categorías del menú
+FIDE_MENU_CATEGORIA_PKG: Relación entre ítems y categorías
+FIDE_MENU_DETALLE_PKG: Gestión de ingredientes por ítem
+FIDE_ARTICULO_PKG: Consulta de artículos para usar como ingredientes
+
+# Este módulo está implementado para funcionar enteramente con procedimientos almacenados en la base de datos Oracle, manteniendo la lógica de negocio del lado del servidor y utilizando PHP principalmente para la presentación y validación de datos. Esta arquitectura garantiza la integridad referencial y la consistencia en las operaciones relacionadas con el menú del restaurante.
+

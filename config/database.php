@@ -187,54 +187,6 @@ function ejecutarPersonasSeleccionarPorId($conn, $cedula) {
     return $data;
 }
 
-/**
- * Ejecuta el procedimiento TIPO_PERSONA_SELECCIONAR_POR_ID_SP del
- * modulo de personas
- * @param resource $conn Conexión Oracle
- * @param int $tipoPersonaId ID del tipo de persona
- * @return array Datos del tipo de persona
- */
-function ejecutarTipoPersonaSeleccionarPorId($conn, $tipoPersonaId) {
-    $sql = "BEGIN FIDE_TIPO_PERSONA_PKG.TIPO_PERSONA_SELECCIONAR_POR_ID_SP(:tipoid, :cursor); END;";
-    
-    $stmt = oci_parse($conn, $sql);
-    if (!$stmt) {
-        $e = oci_error($conn);
-        trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
-        return [];
-    }
-    
-    // Bind the ID parameter
-    oci_bind_by_name($stmt, ":tipoid", $tipoPersonaId);
-    
-    // Bind the cursor
-    $cursor = oci_new_cursor($conn);
-    oci_bind_by_name($stmt, ":cursor", $cursor, -1, OCI_B_CURSOR);
-    
-    $result = oci_execute($stmt);
-    if (!$result) {
-        $e = oci_error($stmt);
-        trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
-        return [];
-    }
-    
-    // Execute the cursor
-    oci_execute($cursor);
-    
-    // Fetch all rows from the cursor
-    $data = [];
-    while (($row = oci_fetch_assoc($cursor)) !== false) {
-        $data[] = $row;
-    }
-    
-    // Free resources
-    oci_free_statement($cursor);
-    oci_free_statement($stmt);
-    
-    return $data;
-}
-
-
 
 /**
  * Ejecuta el procedimiento CLIENTES_SELECCIONAR_POR_ID_SP

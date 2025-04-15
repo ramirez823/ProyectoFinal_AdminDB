@@ -56,14 +56,6 @@ include_once __DIR__ . '/../../includes/navigation.php';
     </table>
 </div>
 
-<script>
-function confirmarEliminar(cedula) {
-    if (confirm('¿Está seguro que desea desactivar esta persona?')) {
-        window.location.href = 'delete.php?cedula=' + encodeURIComponent(cedula);
-    }
-}
-</script>
-
 <?php
 include_once __DIR__ . '/../../includes/footer.php';
 ?>

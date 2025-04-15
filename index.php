@@ -51,7 +51,7 @@ if (isset($_SESSION['user_id'])) {
     <div class="row g-4 mb-4">
         <div class="col-12">
             <h1 class="mb-4">Bienvenido al Sistema de Gestión de Restaurante</h1>
-            <p class="lead">Esta aplicación te permite administrar todos los aspectos de tu restaurante: clientes, menú, inventario, pedidos y facturación.</p>
+            <p class="lead">Administra eficazmente todos los aspectos de tu restaurante: clientes, menú, inventario, pedidos y facturación.</p>
         </div>
     </div>
     
